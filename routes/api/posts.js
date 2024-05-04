@@ -10,8 +10,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 router.get("/", (req, res, next) => {
     Post.find()
     .populate("postedBy")
+    .populate("retweetData")
     .sort({"createdAt": -1})
-    .then(results => res.status(200).send(results))
+    .then(async (results) => {
+        results = await User.populate(results, {path: "retweetData.postedBy"})
+        res.status(200).send(results)
+    })
     .catch(err=> {
         console.log(`Error while fetching all posts ${err}`);
         res.status(400);
@@ -64,8 +68,49 @@ router.put("/:id/like", async (req, res, next) => {
         res.sendStatus(400);
     })
 
-    console.log(`Is liked: ${isLiked}`);
+    res.status(200).send(post);
+})
+
+router.post("/:id/retweet", async (req, res, next) => {
+
+    var postId = req.params.id;
+    var userId = req.session.user._id;
+
+    // try and delete retweet
+    var deletedPost = await Post.findOneAndDelete({postedBy: userId, retweetData: postId})
+    .catch(err => {
+        console.log(err);
+        res.sendStatus(400);
+    })
+
+    var option = deletedPost != null ? "$pull": "$addToSet"; //use the option inside the mongo query using []
+
+    var repost = deletedPost;
+
+    if(repost == null){
+        // add the post
+        repost = await Post.create({postedBy: userId, retweetData: postId})
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(400);
+        })
+    }
+
+    //insert user retweet in user collection
+    req.session.user = await User.findByIdAndUpdate(userId, {[option]: { retweets: repost._id}}, {new: true})
+    .catch(err => {
+        console.log(err);
+        res.sendStatus(400);
+    })
+
+    //insert post retweets on the original post
+    var post = await Post.findByIdAndUpdate(postId, {[option]: { retweetUsers : userId}}, {new: true})
+    .catch(err => {
+        console.log(err);
+        res.sendStatus(400);
+    })
 
     res.status(200).send(post);
 })
+
 module.exports = router;
