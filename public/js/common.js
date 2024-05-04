@@ -1,10 +1,10 @@
-//const { post } = require("../../routes/api/posts");
-
-$("#postTextarea").keyup(event => {
+$("#postTextarea, #replyTextarea").keyup(event => {
     var textbox = $(event.target);
     var value = textbox.val().trim();
     
-    var submitButton = $("#submitPostButton");
+    var isModal = textbox.parents(".modal").length == 1;
+
+    var submitButton = isModal? $("#submitReplyButton") : $("#submitPostButton");
 
     if(submitButton.length == 0) return alert("No submit button found");
 
@@ -32,8 +32,15 @@ $("#submitPostButton").click(() => {
     })
 })
 
+$('#replyModal').on('show.bs.modal', function (event) {
+    var button = $(event.currentTarget).data('clickedButton');
+    var postId = getPostIdFromElement(button);
+    $.get(`/api/posts/${postId}`, results => {
+        outputPosts(results, $('#originalPostContainer'))
+     })
+})
 //-----------------------------------------------------
-//------------ LIKE BUTTON ----------------------------
+//------------ LIKE BUTTON ONCLICK --------------------
 //-----------------------------------------------------
 //$(".likeButton").click() //wont work becausse the likeButton is dynamic content; 
 //we need to attach the listener to the document instead
@@ -62,7 +69,7 @@ $(document).on("click", ".likeButton", (event) => {
 
 
 //-----------------------------------------------------
-//------------ RETWEET BUTTON -------------------------
+//------------ RETWEET BUTTON ONCLICK -----------------
 //-----------------------------------------------------
 $(document).on("click", ".retweetButton", (event) => {
     var button = $(event.target);
@@ -84,6 +91,14 @@ $(document).on("click", ".retweetButton", (event) => {
             }
         }
     })
+})
+
+//-----------------------------------------------------
+//------------ REPLY BUTTON ONCLICK -------------------
+//-----------------------------------------------------
+$(document).on("click", ".replyButton", (event) => {
+    $('#replyModal').data('clickedButton', $(event.target));
+    $('#replyModal').modal('show');
 })
 
 //get the post id (pulled from mongo into data-id attribute) from the root element
@@ -146,7 +161,7 @@ function createPostHtml(postData) {
                         </div>
                         <div class='postFooter'>
                         <div class="postbuttonContainer">
-                            <button title='comment'>
+                            <button title='reply' class='replyButton' data-toggle='modal' data-target='#replyModal'>
                                 <i class="far fa-comment"></i>
                             </button>
                         </div>
@@ -202,5 +217,21 @@ function timeDifference(current, previous) {
 
     else {
         return Math.round(elapsed/msPerYear ) + ' years ago';   
+    }
+}
+
+function outputPosts(results, container){
+    container.html("")
+
+    if(!Array.isArray(results))
+        results = [results]
+
+    results.forEach(result => {
+        var html = createPostHtml(result);
+        container.append(html);
+    })
+
+    if(results.length == 0){
+        container.append("<span class='noResults'>Nothing to show</span>")
     }
 }
