@@ -42,4 +42,30 @@ router.post("/", async (req, res, next) => {
     })
 })
 
+router.put("/:id/like", async (req, res, next) => {
+    var postId = req.params.id;
+    var userId = req.session.user._id;
+
+    var isLiked = req.session.user.likes && req.session.user.likes.includes(postId);
+
+    var option = isLiked? "$pull": "$addToSet"; //use the option inside the mongo query using []
+
+    //insert user like
+    req.session.user = await User.findByIdAndUpdate(userId, {[option]: { likes: postId}}, {new: true})
+    .catch(err => {
+        console.log(err);
+        res.sendStatus(400);
+    })
+
+    //insert post like
+    var post = await Post.findByIdAndUpdate(postId, {[option]: { likes: userId}}, {new: true})
+    .catch(err => {
+        console.log(err);
+        res.sendStatus(400);
+    })
+
+    console.log(`Is liked: ${isLiked}`);
+
+    res.status(200).send(post);
+})
 module.exports = router;
