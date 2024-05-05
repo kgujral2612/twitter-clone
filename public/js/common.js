@@ -1,3 +1,6 @@
+// Globals
+var timer;
+
 $("#postTextarea, #replyTextarea").keyup(event => {
     var textbox = $(event.target);
     var value = textbox.val().trim();
@@ -39,6 +42,31 @@ $('#replyModal').on('show.bs.modal', function (event) {
         outputPosts(results, $('#originalPostContainer'))
      })
 })
+
+$("#userSearchTextBox").keydown((event) => {
+    clearTimeout(timer);
+    var textbox = $(event.target);
+    var value = textbox.val();
+
+    //keycode: 8 del key
+    if(value == "" && event.keycode == 8){
+        //remove user from selection
+        return;
+    }
+
+    timer = setTimeout(() => {
+        value = textbox.val().trim();
+
+        if(value == "") {
+            $(".resultsContainer").html("");
+        }
+        else {
+            searchUsers(value);
+        }
+    }, 1000)
+
+})
+
 //-----------------------------------------------------
 //------------ LIKE BUTTON ONCLICK --------------------
 //-----------------------------------------------------
@@ -234,4 +262,57 @@ function outputPosts(results, container){
     if(results.length == 0){
         container.append("<span class='noResults'>Nothing to show</span>")
     }
+}
+
+function searchUsers(searchTerm){
+    $get("/api/users", {search: searchTerm}, results=> {
+        outputSelectableUsers(results, $("resultsContainer"));
+
+    })
+}
+
+function outputSelectableUsers(results, container){
+    //on a chat, you don't want to include yourself and the users that are already in the chat
+
+    container.html("");
+
+    results.forEach(result => {
+        if(result._id == userLoggedIn._id ){
+
+        }
+        var html = createUserHtml(result, true)
+        container.append(html);
+    })
+
+    if(results.length == 0){
+        container.append(`<span class='noResults'>No results found</span>`)
+    }
+}
+
+function createUserHtml(userData, showFollowButton) {
+
+    var name = userData.firstName + " " + userData.lastName;
+    var isFollowing = userLoggedIn.following && userLoggedIn.following.includes(userData._id);
+    var text = isFollowing ? "Following" : "Follow"
+    var buttonClass = isFollowing ? "followButton following" : "followButton"
+
+    var followButton = "";
+    if (showFollowButton && userLoggedIn._id != userData._id) {
+        followButton = `<div class='followButtonContainer'>
+                            <button class='${buttonClass}' data-user='${userData._id}'>${text}</button>
+                        </div>`;
+    }
+
+    return `<div class='user'>
+                <div class='userImageContainer'>
+                    <img src='${userData.profilePic}'>
+                </div>
+                <div class='userDetailsContainer'>
+                    <div class='header'>
+                        <a href='/profile/${userData.username}'>${name}</a>
+                        <span class='username'>@${userData.username}</span>
+                    </div>
+                </div>
+                ${followButton}
+            </div>`;
 }

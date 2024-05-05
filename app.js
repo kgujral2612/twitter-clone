@@ -27,15 +27,21 @@ app.use(express.static(path.join(__dirname, "public")));
 const loginRoute = require('./routes/loginRoutes');
 const registerRoute = require('./routes/registerRoutes');
 const logoutRoute = require('./routes/logoutRoutes');
+const searchRoute = require('./routes/searchRoutes');
+const messagesRoute = require('./routes/messagesRoutes');
 
 // API Routes
 const postsApiRoute = require('./routes/api/posts');
+const usersApiRoute = require('./routes/api/users');
 
 app.use("/login", loginRoute);
 app.use("/register", registerRoute);
 app.use("/logout", logoutRoute);
+app.use("/search", middleware.requireLogin, searchRoute);
+app.use("/messages", middleware.requireLogin, messagesRoute);
 
 app.use("/api/posts", postsApiRoute);
+app.use("/api/users", usersApiRoute);
 
 //the payload is available only in pug templates
 app.get("/", middleware.requireLogin, (req, res, next)=> { 
