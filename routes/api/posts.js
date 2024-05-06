@@ -14,8 +14,20 @@ router.get("/", async (req, res, next) => {
 
 router.get("/:id", async (req, res, next) => {
     var postId = req.params.id;
-    var results = await getPosts({_id: postId});
-    results = results[0];
+    
+    var postData = await getPosts({_id: postId});
+    postData = postData[0];
+
+    results = {
+        postData: postData
+    }
+
+    if(postData.replyTo !== undefined){
+        results.replyTo = postData.replyTo;
+    }
+
+    results.replies = await getPosts({ replyTo: postId});
+
     res.status(200).send(results);
 })
 
@@ -29,6 +41,10 @@ router.post("/", async (req, res, next) => {
     var postData = {
         content: req.body.content,
         postedBy: req.session.user
+    }
+
+    if(req.body.replyTo){
+        postData.replyTo = req.body.replyTo;
     }
 
     Post.create(postData)
@@ -114,9 +130,11 @@ async function getPosts(filter){
     var results = await Post.find(filter)
     .populate("postedBy")
     .populate("retweetData")
+    .populate("replyTo")
     .sort({"createdAt": -1})
     .catch(err=> console.log(`Error while fetching posts. Error: ${err}`))
 
+    results = await User.populate(results, {path: "replyTo.postedBy"})
     return await User.populate(results, {path: "retweetData.postedBy"})
 }
 

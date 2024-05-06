@@ -18,30 +18,50 @@ $("#postTextarea, #replyTextarea").keyup(event => {
     submitButton.prop("disabled", false);
 })
 
-$("#submitPostButton").click(() => {
+$("#submitPostButton, #submitReplyButton").click((event) => {
     var button = $(event.target);
-    var textbox = $("#postTextarea");
+
+    //check whether you're replying or creating a new post
+    var isModal = button.parents(".modal").length == 1;
+    var textbox = isModal? $("#replyTextarea"):$("#postTextarea");
 
     var data = {
         content: textbox.val()
     }
 
+    if(isModal){
+        var id = button.data().id;
+        if(id == null) return alert("Button id is null");
+        data.replyTo = id;
+    }
+
     $.post("/api/posts", data, postData => {
-        
-        var html = createPostHtml(postData);
-        $(".postsContainer").prepend(html);
-        textbox.val("");
-        button.prop("disabled", true);
+
+        if(postData.replyTo){
+            location.reload();
+        }
+        else{
+            var html = createPostHtml(postData);
+            $(".postsContainer").prepend(html);
+            textbox.val("");
+            button.prop("disabled", true);
+        }
     })
 })
 
 $('#replyModal').on('show.bs.modal', function (event) {
     var button = $(event.currentTarget).data('clickedButton');
     var postId = getPostIdFromElement(button);
+    $('#submitReplyButton').data("id", postId); //stores in jquery cache -- access using data()
+
     $.get(`/api/posts/${postId}`, results => {
-        outputPosts(results, $('#originalPostContainer'))
+        outputPosts(results.postData, $('#originalPostContainer'))
      })
 })
+
+//clear the modal post after closing it
+$('#replyModal').on('hidden.bs.modal', () => $('#originalPostContainer').html("")
+)
 
 $("#userSearchTextBox").keydown((event) => {
     clearTimeout(timer);
@@ -129,6 +149,18 @@ $(document).on("click", ".replyButton", (event) => {
     $('#replyModal').modal('show');
 })
 
+//-----------------------------------------------------
+//------------ POST  -----    ONCLICK -----------------
+//-----------------------------------------------------
+$(document).on("click", ".post", (event) => {
+    var element = $(event.target);
+    var postId = getPostIdFromElement(element);
+
+    if(postId !== undefined && !element.is("button")){
+        window.location.href = `/posts/${postId}`
+    }
+})
+
 //get the post id (pulled from mongo into data-id attribute) from the root element
 //if it is a child element such as buttons, return the post el
 //else if it is the rot itself, return it as is
@@ -142,7 +174,7 @@ function getPostIdFromElement(element){
     return postId;
 }
 
-function createPostHtml(postData) {
+function createPostHtml(postData, largeFont = false) {
 
     if(postData == null)
         alert("postdata is null");
@@ -162,6 +194,7 @@ function createPostHtml(postData) {
 
     var likedButtonActiveClass = postData.likes.includes(userLoggedIn._id) ? "active" : "";
     var retweetButtonActiveClass = postData.retweetUsers.includes(userLoggedIn._id) ? "active" : "";
+    var largeFontClass = largeFont ? "largeFont": "";
 
     var retweetText = '';
     if(isRetweet){
@@ -170,7 +203,24 @@ function createPostHtml(postData) {
                         Retweeted by <a href='/profile/${retweetedBy}'>@${retweetedBy}</a></span>`;
     }
 
-    return `<div class='post' data-id='${postData._id}'>
+    var replyFlag = "";
+
+    if(postData.replyTo && postData.replyTo._id){
+
+        if(!postData.replyTo._id){
+            return alert("Reply to is not populated");
+        }
+        else if(!postData.replyTo.postedBy._id){
+            return alert("Posted by is not populated");
+        }
+
+        var replyUserName = postData.replyTo.postedBy.username;
+        replyFlag = `<div class='replyFlag'>
+                        Replying to <a href='/profile/${replyUserName}'>@${replyUserName}</a>
+                    <div>`;
+    }
+
+    return `<div class='post ${largeFontClass}' data-id='${postData._id}'>
                 <div class='postActionContainer'>
                     ${retweetText}
                 </div>
@@ -184,6 +234,7 @@ function createPostHtml(postData) {
                             <span class='username'>@${postedBy.username}</span>
                             <span class='date'>${timestamp}</span>
                         </div>
+                        ${replyFlag}
                         <div class='postBody'>
                             <span>${postData.content}</span>
                         </div>
@@ -258,10 +309,6 @@ function outputPosts(results, container){
         var html = createPostHtml(result);
         container.append(html);
     })
-
-    if(results.length == 0){
-        container.append("<span class='noResults'>Nothing to show</span>")
-    }
 }
 
 function searchUsers(searchTerm){

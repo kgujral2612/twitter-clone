@@ -221,6 +221,23 @@ button span {
     
 }
 
+.modal .post{
+    padding: 0 0 var(--spacing) 0;
+}
+
+.replyFlag{
+    margin-bottom: 5px;
+}
+
+.replyFlag a{
+    color : var(--blue);
+}
+
+.post.largeFont .postBody, 
+.post.largeFont  .postFooter{
+    font-size: 23px;
+} 
+
 .tabsContainer {
     display: flex;
     border-bottom: 1px solid var(--lightGrey);
