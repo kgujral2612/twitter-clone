@@ -1,4 +1,5 @@
 // Globals
+var cropper;
 var timer;
 
 $("#postTextarea, #replyTextarea").keyup(event => {
@@ -174,6 +175,14 @@ $(document).on("click", ".deletePostButton", (event) => {
 })
 
 //-----------------------------------------------------
+//------------ IMADE UPLOAD BUTTON ONCLICK ------------
+//-----------------------------------------------------
+$(document).on("click", ".profilePictureButton", (event) => {
+    $('#imageUploadModal').data('clickedButton', $(event.target));
+    $('#imageUploadModal').modal('show');
+})
+
+//-----------------------------------------------------
 //------------ POST  -----    ONCLICK -----------------
 //-----------------------------------------------------
 $(document).on("click", ".post", (event) => {
@@ -183,6 +192,54 @@ $(document).on("click", ".post", (event) => {
     if(postId !== undefined && !element.is("button")){
         window.location.href = `/posts/${postId}`
     }
+})
+
+$('#filePhoto').change((event)=>{
+    var input = $(event.target)[0];
+    console.log(input);
+
+    if(input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = (e) => {
+            var image = document.getElementById('imagePreview');
+            image.src = e.target.result;
+
+            if(cropper !== undefined){
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(image, {
+                aspectRatio: 1/1,
+                background: false
+            });
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+})
+
+$('#imageUploadButton').click(()=>{
+    //get the cropped area
+    var canvas = cropper.getCroppedCanvas();
+
+    if(canvas == null){
+        alert('could not upload image. make sure it is a valid image file.');
+        return;
+    }
+
+    //blob binary large object
+    canvas.toBlob((blob)=>{
+        var formData = new FormData();
+        formData.append("croppedImage", blob);
+
+        $.ajax({
+            url: "/api/users/profilePicture",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: () => location.reload()
+        })
+    })
 })
 
 //get the post id (pulled from mongo into data-id attribute) from the root element

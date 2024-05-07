@@ -3,9 +3,9 @@ const app = express();
 const router = express.Router();
 const bodyParser = require("body-parser")
 const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 const path = require("path");
 const fs = require("fs");
-const upload = multer({ dest: "uploads/" });
 const User = require('../../schemas/UserSchema');
 const Post = require('../../schemas/PostSchema');
 
@@ -98,7 +98,9 @@ router.post("/profilePicture", upload.single("croppedImage"), async (req, res, n
             return res.sendStatus(400);
         }
 
-        req.session.user = await User.findByIdAndUpdate(req.session.user._id, { profilePic: filePath }, { new: true });
+        req.session.user = await User.findByIdAndUpdate(req.session.user._id, 
+            { profilePic: filePath }, 
+            { new: true });
         res.sendStatus(204);
     })
 
