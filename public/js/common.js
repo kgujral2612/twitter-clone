@@ -175,11 +175,19 @@ $(document).on("click", ".deletePostButton", (event) => {
 })
 
 //-----------------------------------------------------
-//------------ IMADE UPLOAD BUTTON ONCLICK ------------
+//------------ IMAGE UPLOAD BUTTON ONCLICK ------------
 //-----------------------------------------------------
 $(document).on("click", ".profilePictureButton", (event) => {
     $('#imageUploadModal').data('clickedButton', $(event.target));
     $('#imageUploadModal').modal('show');
+})
+
+//-----------------------------------------------------
+//------------ COVER PHOTO UPLOAD BUTTON ONCLICK ------
+//-----------------------------------------------------
+$(document).on("click", ".coverPhotoButton", (event) => {
+    $('#coverPhotoUploadModal').data('clickedButton', $(event.target));
+    $('#coverPhotoUploadModal').modal('show');
 })
 
 //-----------------------------------------------------
@@ -241,6 +249,55 @@ $('#imageUploadButton').click(()=>{
         })
     })
 })
+
+$('#coverPhoto').change((event)=>{
+    var input = $(event.target)[0];
+    console.log(input);
+
+    if(input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = (e) => {
+            var image = document.getElementById('coverPreview');
+            image.src = e.target.result;
+
+            if(cropper !== undefined){
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(image, {
+                aspectRatio: 16/9,
+                background: false
+            });
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+})
+
+$('#coverPhotoUploadButton').click(()=>{
+    //get the cropped area
+    var canvas = cropper.getCroppedCanvas();
+
+    if(canvas == null){
+        alert('could not upload cover photo. make sure it is a valid image file.');
+        return;
+    }
+
+    //blob binary large object
+    canvas.toBlob((blob)=>{
+        var formData = new FormData();
+        formData.append("croppedImage", blob);
+
+        $.ajax({
+            url: "/api/users/coverPhoto",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: () => location.reload()
+        })
+    })
+})
+
 
 //get the post id (pulled from mongo into data-id attribute) from the root element
 //if it is a child element such as buttons, return the post el
