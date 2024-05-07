@@ -49,6 +49,17 @@ $("#submitPostButton, #submitReplyButton").click((event) => {
     })
 })
 
+$('#deletePostButton').click((event)=> {
+    var postId = $(event.target).data("id");
+    $.ajax({
+        url: `/api/posts/${postId}`,
+        type: "DELETE",
+        success: (postData) => {
+            location.reload();
+        }
+    })
+})
+
 $('#replyModal').on('show.bs.modal', function (event) {
     var button = $(event.currentTarget).data('clickedButton');
     var postId = getPostIdFromElement(button);
@@ -60,8 +71,13 @@ $('#replyModal').on('show.bs.modal', function (event) {
 })
 
 //clear the modal post after closing it
-$('#replyModal').on('hidden.bs.modal', () => $('#originalPostContainer').html("")
-)
+$('#replyModal').on('hidden.bs.modal', () => $('#originalPostContainer').html(""))
+
+$('#deletePostModal').on('show.bs.modal', function (event) {
+    var button = $(event.currentTarget).data('clickedButton');
+    var postId = getPostIdFromElement(button);
+    $('#deletePostButton').data("id", postId); 
+})
 
 $("#userSearchTextBox").keydown((event) => {
     clearTimeout(timer);
@@ -150,6 +166,14 @@ $(document).on("click", ".replyButton", (event) => {
 })
 
 //-----------------------------------------------------
+//------------ DELETE POST BUTTON ONCLICK -------------
+//-----------------------------------------------------
+$(document).on("click", ".deletePostButton", (event) => {
+    $('#deletePostModal').data('clickedButton', $(event.target));
+    $('#deletePostModal').modal('show');
+})
+
+//-----------------------------------------------------
 //------------ POST  -----    ONCLICK -----------------
 //-----------------------------------------------------
 $(document).on("click", ".post", (event) => {
@@ -222,7 +246,7 @@ function createPostHtml(postData, largeFont = false) {
 
     var buttons = "";
     if(postData.postedBy._id == userLoggedIn._id){
-        buttons = `<button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal">
+        buttons = `<button data-id="${postData._id}" class="deletePostButton" data-toggle="modal" data-target="#deletePostModal">
         <i class="fas fa-times"></i>
         </button>`;
     }
