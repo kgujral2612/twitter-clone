@@ -194,6 +194,10 @@ button span {
     flex: 1
 }
 
+.errorMessage{
+    padding: var(--spacing);
+}
+
 .postFooter .postbuttonContainer button:hover{
     background-color: #d4edff;
     color: var(--blue);
