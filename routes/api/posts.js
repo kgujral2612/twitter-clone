@@ -8,7 +8,15 @@ const Post = require('../../schemas/PostSchema');
 app.use(bodyParser.urlencoded({ extended: false }));
 
 router.get("/", async (req, res, next) => {
-    var results = await getPosts({});
+
+    var searchObject = req.query;
+
+    if(searchObject.isReply !== undefined){
+        searchObject.replyTo = { $exists: searchObject.isReply };
+        delete searchObject.isReply;
+    }
+
+    var results = await getPosts(searchObject);
     res.status(200).send(results);
 })
 
