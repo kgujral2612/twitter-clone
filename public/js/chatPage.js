@@ -106,9 +106,14 @@ function createMessageHtml(message, nextMessage, lastSenderId){
 
     var isMine = message.sender._id == userLoggedIn._id;
     var liClassName = isMine? "mine" : "theirs";
+    var nameElement = "";
 
     if(isFirst){
         liClassName += " first";
+
+        if(!isMine){
+            nameElement = `<span class="senderName">${senderName}</span>`;
+        }
     }
 
     if(isLast){
@@ -117,6 +122,7 @@ function createMessageHtml(message, nextMessage, lastSenderId){
 
     return `<li class='message ${liClassName}'>
                 <div class='messageContainer'>
+                    ${nameElement}
                     <span class='messageBody'>${message.content}</span>
                 </div>
             </li>`;
