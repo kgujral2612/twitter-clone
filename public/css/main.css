@@ -459,6 +459,11 @@ button span {
     flex-direction: column;
     min-height: 0;
     flex:1;
+    flex-basis: 0;
+}
+
+.chatPageContainer .mainContentContainer{
+    overflow-y: hidden;
 }
 
 .chatTitleBar {
@@ -743,3 +748,20 @@ button span {
     color: rgba(0,0,0,0.7);
     font-size: 13px;
 }
+
+.chatMessages .imageContainer{
+    height: 24px;
+    width: 24px;
+    margin-right: 7px;
+}
+
+.chatMessages img{
+    height: 100%;
+    border-radius: 50%;
+    vertical-align: bottom;
+}
+
+.chatMessages .message.last{
+    margin-bottom: 7px;
+}
+
