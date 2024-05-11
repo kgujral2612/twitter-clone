@@ -661,3 +661,7 @@ button span {
 .chatImageContainer .userCount{
     margin-left: -10px;
 }
+
+#chatNameTextbox{
+    width: 100%;
+}
