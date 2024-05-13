@@ -1,15 +1,14 @@
 const express = require('express');
 const app = express();
 const port = 3000;
-const middleware = require('./middleware');
-const path = require('path');
-const bodyParser = require("body-parser");
+const middleware = require('./middleware')
+const path = require('path')
+const bodyParser = require("body-parser")
 const mongoose = require("./database");
-const session = require('express-session');
+const session = require("express-session");
 
-const server = app.listen(port, ()=>{
-    console.log("Server listening on port " + port);
-})
+const server = app.listen(port, () => console.log("Server listening on port " + port));
+const io = require("socket.io")(server, { pingTimeout: 60000, allowEIO3: true });
 
 app.set("view engine", "pug"); //telling the server that we're using pug as the template engine
 app.set("views", "views"); //all views will be in the views folder
@@ -20,8 +19,8 @@ app.use(session({
     resave: true,
     saveUninitialized: false
 }))
-//app.use(express.static("public"));
-app.use(express.static(path.join(__dirname, "public")));
+
+app.use(express.static(path.join(__dirname, "public"))); //app.use(express.static("public"));
 
 // Routes
 const loginRoute = require('./routes/loginRoutes');
@@ -61,4 +60,14 @@ app.get("/", middleware.requireLogin, (req, res, next)=> {
         userLoggedInJs: JSON.stringify(req.session.user)
     }
     res.status(200).render("home", payload);
-}) 
+});
+
+console.log("io connection... ");
+
+io.on("connection", socket => {
+
+    socket.on("setup", userData => {
+        socket.join(userData._id); //joining a chat room with userid
+        socket.emit("connected"); //look for this event on the client side
+    })
+})
