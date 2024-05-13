@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const NotificationSchema = new Schema({
     userTo: { type: Schema.Types.ObjectId, ref: 'User'},
     userFrom: { type: Schema.Types.ObjectId, ref: 'User'},
-    notificationType: { type: String},
+    notificationType: { type: String },
     opened: Boolean,
     entityId: { type: Schema.Types.ObjectId}
 }, {timestamps: true});

@@ -225,6 +225,16 @@ $(document).on("click", ".post", (event) => {
     }
 })
 
+$(document).on("click", ".notification.active", (event)=> {
+    var container = $(event.target);
+    var notificationId = container.data().id;
+    var href = container.attr("href");
+    event.preventDefault();
+    var callback = () => window.location = href; 
+
+    markNotificationsAsOpened(notificationId, callback);
+})
+
 $('#filePhoto').change((event)=>{
     var input = $(event.target)[0];
     console.log(input);
@@ -585,4 +595,17 @@ function messageReceived(newMessage){
         console.log("on chat page");
         addChatMessageHtml(newMessage);
     }
+}
+
+function markNotificationsAsOpened(notificationId = null, callback = null){
+    if(callback == null){
+        callback = () => location.reload();
+    }
+
+    var url = notificationId != null ? `/api/notifications/${notificationId}/markAsOpened` : `/api/notifications/markAsOpened`;
+    $.ajax({
+        url : url,
+        type: "PUT",
+        success : callback
+    })
 }

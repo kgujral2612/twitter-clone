@@ -513,7 +513,6 @@ button span {
     display: inline-block;
 }
 
-
 .resultListItem {
     padding: 7px;
     display: flex;
@@ -789,4 +788,12 @@ button span {
 .loadingSpinnerContainer img{
     width: 50%;
     max-width: 75px;
+}
+
+.resultListItem.active{
+    background-color: var(--blueBackground);
+}
+
+.resultListItem.notification * { 
+    pointer-events: none;
 }
