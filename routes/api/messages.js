@@ -24,6 +24,7 @@ router.post("/", async (req, res, next) => {
     .then(async message => {
         message = await message.populate("sender");
         message = await message.populate("chat");
+        message = await User.populate(message, {path: "chat.users"});
 
         Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message })
         .catch(err => console.log(`Error: ${err}`))
@@ -35,6 +36,5 @@ router.post("/", async (req, res, next) => {
         res.sendStatus(400);
     })
 })
-
 
 module.exports = router;

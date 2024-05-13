@@ -68,6 +68,21 @@ io.on("connection", socket => {
 
     socket.on("setup", userData => {
         socket.join(userData._id); //joining a chat room with userid
-        socket.emit("connected"); //look for this event on the client side
+        socket.emit("connected"); //look for this event on the client side // each client gets it
     })
+
+    socket.on("join room", room => socket.join(room));
+    socket.on("typing", room => socket.in(room).emit("typing")); //sent to everyone in the room
+    socket.on("stop typing", room => socket.in(room).emit("stop typing")); // the user just stopped typing
+    socket.on("new message", newMessage => {
+        var chat = newMessage.chat;
+        if(!chat.users){
+            return console.log("chat.users is undefined")
+        }
+        chat.users.forEach(user=>{
+            if(user._id == newMessage.sender._id)
+                return;
+            socket.in(user._id).emit("message received", newMessage);
+        })
+    }); // the user just stopped typing
 })
