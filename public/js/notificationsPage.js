@@ -63,7 +63,6 @@ function getNotificationUrl(notification){
     if(notification.notificationType == "retweet" 
     || notification.notificationType == "postLike" 
     || notification.notificationType == "reply"){
-        console.log("Notification entitiy: " + notification.entityId);
         return `/posts/${notification.entityId}`
 
     }
