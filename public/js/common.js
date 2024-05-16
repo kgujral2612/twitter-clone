@@ -594,13 +594,14 @@ function getOtherChatUsers(users){
 }
 
 function messageReceived(newMessage){
-    if($(".chatContainer").length == 0){
+    console.log("new message");
+    if($(`[data-room="${newMessage.chat._id}"]`).length == 0){
         //not on the chat page
         //show popup
-        console.log("not on chat page");
+        showMessagePopup(newMessage);
     }
     else{
-        console.log("on chat page");
+        // on chat page
         addChatMessageHtml(newMessage);
     }
     refreshMessagesBadge();
@@ -701,9 +702,65 @@ function getNotificationUrl(notification){
 function showNotificationPopup(data){
     var html = createNotificationHtml(data);
     var element = $(html);
-    element.hide.prependTo("#notificationsList").slideDown("fast");
+    element.hide().prependTo("#notificationsList").slideDown("fast");
 
-    setTimeout(()=> {
-        element.fadeOut(400), 5000
-    })
+    setTimeout(()=>  element.fadeOut(500), 5000 );
+}
+
+function createChatHtml(chatData){
+    var chatName = getChatName(chatData);
+    var image = getChatImageElements(chatData);
+    var latestMessage = getLatestChatMessage(chatData.latestMessage);
+    var activeClass = !chatData.latestMessage || chatData.latestMessage.readBy.includes(userLoggedIn._id) ? "" : "active";
+
+    return `<a class='resultListItem ${activeClass}' href='/messages/${chatData._id}'>
+                ${image}
+                <div class='resultsDetailsContainer ellipsis'>
+                    <span class='heading ellipsis'>${chatName}</span>
+                    <span class='subtext ellipsis'>${latestMessage}</span>
+                </div>
+            </a>`;
+}
+
+function getLatestChatMessage(latestMessage){
+    if(latestMessage != null){
+        var sender = latestMessage.sender;
+        return `${sender.firstName} ${sender.lastName}: ${latestMessage.content}`;
+    }
+
+    return "New chat";
+}
+
+function getChatImageElements(chatData){
+    var otherChatUsers = getOtherChatUsers(chatData.users);
+
+    var groupChatClass = "";
+    var chatImage = getUserChatImageElement(otherChatUsers[0]);
+
+    if(otherChatUsers.length > 1){
+        groupChatClass = "groupChatImage";
+        chatImage += getUserChatImageElement(otherChatUsers[1]);
+    }
+
+    return `<div class='resultsImageContainer ${groupChatClass}'>${chatImage}</div>`;
+}
+
+function getUserChatImageElement(user){
+    if(!user || !user.profilePic) {
+        return alert("user passed into function is invalid");
+    }
+
+    return `<img src=${user.profilePic} alt='Profile Picture'></img>`
+}
+
+function showMessagePopup(data){
+    if(!data.chat.latestMessage._id){
+        data.chat.latestMessage = data;
+    }
+
+    var html = createChatHtml(data.chat);
+    var element = $(html);
+    element.hide().prependTo("#notificationsList").slideDown("fast");
+
+    setTimeout(()=> element.fadeOut(500), 5000);
 }
