@@ -6,3 +6,14 @@ socket.emit("setup", userLoggedIn); //look for this event on the server side
 socket.on("connected", () => connected = true );
 socket.on("message received", (newMessage) => messageReceived(newMessage) );
 
+socket.on("notification received", (newNotification) => {
+    $.get("/api/notifications/latest", (notificationData)=> {
+        refreshNotificationsBadge();
+    })
+})
+
+function emitNotification(userId) {
+    if(userId == userLoggedIn._id)
+        return;
+    socket.emit("notification received", userId);
+}

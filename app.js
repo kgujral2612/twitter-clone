@@ -89,4 +89,5 @@ io.on("connection", socket => {
             socket.in(user._id).emit("message received", newMessage);
         })
     }); // the user just stopped typing
+    socket.on("notification received", room => socket.in(room).emit("notification received")); 
 })
