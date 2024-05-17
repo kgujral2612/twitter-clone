@@ -21,6 +21,7 @@ router.get("/", async (req, res, next) => {
     res.status(200).send(results);
 })
 
+
 router.get("/:id", async (req, res, next) => {
     var postId = req.params.id;
     

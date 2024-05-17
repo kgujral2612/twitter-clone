@@ -233,6 +233,35 @@ $(document).on("click", ".post", (event) => {
     }
 })
 
+//-----------------------------------------------------
+//------------ FOLLOW BUTTON ONCLICK ------------------
+//-----------------------------------------------------
+$(document).on("click", ".followButton", (event) => {
+    var element = $(event.target);
+    var userToFollow = element.data().user;
+    
+    $.ajax({
+        url : `/api/users/${userToFollow}/follow`,
+        type: "PUT",
+        success: (data, status, xhr) => {
+            if(xhr.status !=200)
+                alert('could not follow');
+            
+            var followers = parseInt($('#followersCount').text()) 
+            if(element.hasClass('following')){
+                element.removeClass('following');
+                $('#followersCount').text(followers - 1);
+                $('.followButton').text('Follow');
+            }
+            else{
+                element.addClass('following');
+                $('#followersCount').text(followers + 1);
+                $('.followButton').text('Following');
+            }
+        }
+    })
+})
+
 $(document).on("click", ".notification.active", (event)=> {
     var container = $(event.target);
     var notificationId = container.data().id;
