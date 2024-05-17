@@ -6,6 +6,7 @@ const path = require('path')
 const bodyParser = require("body-parser")
 const mongoose = require("./database");
 const session = require("express-session");
+const favicon = require('serve-favicon');
 
 const server = app.listen(port, () => console.log("Server listening on port " + port));
 const io = require("socket.io")(server, { pingTimeout: 60000, allowEIO3: true });
@@ -19,6 +20,8 @@ app.use(session({
     resave: true,
     saveUninitialized: false
 }))
+// Serve favicon from the 'public/favicon.ico' file
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
 
 app.use(express.static(path.join(__dirname, "public"))); //app.use(express.static("public"));
 
