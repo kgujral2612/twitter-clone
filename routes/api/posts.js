@@ -5,16 +5,27 @@ const bodyParser = require("body-parser")
 const User = require('../../schemas/UserSchema');
 const Post = require('../../schemas/PostSchema');
 const Notification = require('../../schemas/NotificationSchema');
+const mongoose = require('mongoose');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
 router.get("/", async (req, res, next) => {
 
     var searchObject = req.query;
-
+    
     if(searchObject.isReply !== undefined){
         searchObject.replyTo = { $exists: searchObject.isReply };
         delete searchObject.isReply;
+    }
+
+    if(searchObject.followedUsers !== undefined){
+        var userList = []
+        searchObject.followedUsers.forEach(user => {
+            userList.push(new mongoose.Types.ObjectId(user))
+        });
+        searchObject.postedBy = { $in: userList};
+        console.log(searchObject.postedBy);
+        delete searchObject.followedUsers;
     }
 
     var results = await getPosts(searchObject);
@@ -160,6 +171,7 @@ router.delete("/:id", (req, res, next) => {
 })
 
 async function getPosts(filter){
+
     var results = await Post.find(filter)
     .populate("postedBy")
     .populate("retweetData")
