@@ -1,5 +1,5 @@
 # Twitter Clone: a full-stack, real-time twitter clone
-![alt System Architecture Diagram](/system-diagram.png)
+<img src="https://github.com/kgujral2612/twitter-clone/blob/main/system-diagram.png" width="700">
 
 This project is a full-stack Twitter clone built with modern JavaScript technologies. The application offers core functionalities similar to twitter, allowing users to:
 
@@ -25,10 +25,10 @@ This project is a full-stack Twitter clone built with modern JavaScript technolo
 - Profile Image and Banner Image upload with crop functionality.
 - Responsive Design: Optimized for various screen sizes.
 
-![Home](/demo/homepage.png)
-![Profile](/demo/profilePage.png)
-![Home](/demo/notifications.png)
-![Home](/demo/messages.png)
+<img src="https://github.com/kgujral2612/twitter-clone/blob/main/demo/homepage.png" width="700">
+<img src="https://github.com/kgujral2612/twitter-clone/raw/main/demo/profilePage.png" width="700">
+<img src="https://github.com/kgujral2612/twitter-clone/raw/main/demo/notifications.png" width="700">
+<img src="https://github.com/kgujral2612/twitter-clone/raw/main/demo/messages.png" width="700">
 
 ## Realtime Chat Demo
 ![Demo](/demo/ChatDemo.gif)
