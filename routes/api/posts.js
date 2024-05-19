@@ -17,15 +17,23 @@ router.get("/", async (req, res, next) => {
         searchObject.replyTo = { $exists: searchObject.isReply };
         delete searchObject.isReply;
     }
-
+    
     if(searchObject.followedUsers !== undefined){
         var userList = []
         searchObject.followedUsers.forEach(user => {
             userList.push(new mongoose.Types.ObjectId(user))
         });
         searchObject.postedBy = { $in: userList};
-        console.log(searchObject.postedBy);
         delete searchObject.followedUsers;
+    }
+
+    if(searchObject.search !== undefined){
+        searchObject = {
+            $or: [
+                { content: { $regex: searchObject.search, $options: "i" }}
+            ]
+        }
+        delete searchObject.search;
     }
 
     var results = await getPosts(searchObject);
@@ -171,7 +179,6 @@ router.delete("/:id", (req, res, next) => {
 })
 
 async function getPosts(filter){
-
     var results = await Post.find(filter)
     .populate("postedBy")
     .populate("retweetData")
