@@ -25,6 +25,11 @@ This project is a full-stack Twitter clone built with modern JavaScript technolo
 - Profile Image and Banner Image upload with crop functionality.
 - Responsive Design: Optimized for various screen sizes.
 
+![Home](/demo/homepage.png)
+![Profile](/demo/profilePage.png)
+![Home](/demo/notifications.png)
+![Home](/demo/messages.png)
+
 ## Realtime Chat Demo
 ![Demo](/demo/ChatDemo.gif)
 
