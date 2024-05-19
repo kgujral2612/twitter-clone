@@ -58,6 +58,9 @@ MongoDB stores
 - Login will involve verifying username and password against the database.
 - Secure password hashing will be implemented for user credentials using bcrpyt npm package
 
+### User Profile
+- Users will have a profile page displaying a profile picture, a banner image, the number of followers, the number of users being followed, as well as all posts and replies by the user.
+
 ### Creating and viewing tweets
 - Users can create tweets with text content.
 - Tweets will be stored in the database with timestamps and author information.
@@ -73,6 +76,14 @@ MongoDB stores
 - Users can like and retweet existing tweets.
 - Likes and retweets will be stored with user and tweet references in the database.
 - The frontend will display like and retweet counts for each tweet.
+
+### Real-time Notifications:
+- Users will recieve notifications from their followers for post likes, retweets, and replies in real-time.
+- Users will receive notifications when someone new follows them in real-time.
+
+### Creating chats and Real-time Messaging:
+- Users can create chats with other users.
+- Users will receive messages in real-time.
 
 ## Scalability
 
