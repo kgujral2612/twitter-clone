@@ -25,7 +25,7 @@ This project is a full-stack Twitter clone built with modern JavaScript technolo
 - Responsive Design: Optimized for various screen sizes.
 
 ## Realtime Chat Demo
-![Demo](/ChatDemo.mp4)
+![Demo](/demo/ChatDemo.gif)
 
 ## Notifcations Demo
-![Demo](/NotificationsDemo.mp4)
+![Demo](/demo/NotificationsDemo.gif)
